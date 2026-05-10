@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindTrack - Stay Productive</title>
+    <title>MindTrack - Smart Productivity</title>
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            --bg-color: #f3f4f6;
             --primary-accent: #6366f1;
             --text-main: #1f2937;
             --card-bg: #ffffff;
+            --danger: #ef4444;
         }
 
         * {
@@ -27,48 +28,47 @@
             min-height: 100vh;
         }
 
-        /* Container & UX Design (Single Page) */
         .app-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 450px;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         header {
             text-align: center;
-            margin-top: 20px;
+            margin: 10px 0;
         }
 
-        h1 { font-weight: 800; color: var(--primary-accent); }
+        h1 { font-weight: 800; color: var(--primary-accent); font-size: 2rem; }
 
         .card {
             background: var(--card-bg);
             padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
 
-        /* Mood Detector Section */
+        h3 { margin-bottom: 12px; font-size: 1.1rem; }
+
+        /* Mood Section */
         textarea {
             width: 100%;
-            height: 100px;
-            border: 1px solid #e5e7eb;
+            height: 90px;
+            border: 2px solid #f3f4f6;
             border-radius: 12px;
             padding: 12px;
-            margin-top: 10px;
             resize: none;
             outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s;
         }
 
-        /* Thumb-friendly Button Area */
-        .btn-container {
-            margin-top: 10px;
-        }
+        textarea:focus { border-color: var(--primary-accent); }
 
-        button {
+        .btn-vibe {
             width: 100%;
             padding: 16px;
             background-color: var(--primary-accent);
@@ -76,40 +76,91 @@
             border: none;
             border-radius: 12px;
             font-weight: 700;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
         }
 
-        button:active { transform: scale(0.98); }
-
-        /* AI Suggestion Output */
         #ai-output {
             display: none;
-            background: #eef2ff;
+            background: #f5f3ff;
             border-left: 4px solid var(--primary-accent);
             padding: 15px;
             margin-top: 15px;
             border-radius: 8px;
-            font-style: italic;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* Simple To-Do List */
-        .todo-section h3 { margin-bottom: 10px; }
+        /* To-Do Section Upgraded */
+        .todo-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .todo-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #f3f4f6;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .btn-add {
+            padding: 0 15px;
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .todo-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            animation: fadeIn 0.3s ease;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .todo-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .todo-text { font-size: 14px; cursor: pointer; }
+        .completed { text-decoration: line-through; color: #9ca3af; }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #d1d5db;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+        }
+
+        .btn-delete:hover { color: var(--danger); }
 
         input[type="checkbox"] {
             width: 18px;
             height: 18px;
             accent-color: var(--primary-accent);
+            cursor: pointer;
         }
-
-        .completed { text-decoration: line-through; color: #9ca3af; }
     </style>
 </head>
 <body>
@@ -117,68 +168,90 @@
 <div class="app-container">
     <header>
         <h1>MindTrack</h1>
-        <p>Manage your vibe, boost your study.</p>
     </header>
 
     <div class="card">
         <h3>Mood Detector</h3>
-        <textarea id="mood-input" placeholder="Ketik perasaanmu hari ini... (contoh: aku capek banget belajar)"></textarea>
-        <div class="btn-container">
-            <button onclick="getAIVibe()">Get Vibe</button>
-        </div>
+        <textarea id="mood-input" placeholder="Apa yang kamu rasain sekarang?"></textarea>
+        <button class="btn-vibe" onclick="getAIVibe()">Get Vibe</button>
         <div id="ai-output"></div>
     </div>
 
-    <div class="card todo-section">
+    <div class="card">
         <h3>Simple To-Do</h3>
-        <div id="todo-list">
-            <div class="todo-item">
-                <input type="checkbox" onchange="toggleTodo(this)">
-                <span>Belajar Matematika</span>
-            </div>
-            <div class="todo-item">
-                <input type="checkbox" onchange="toggleTodo(this)">
-                <span>Istirahat 15 Menit</span>
-            </div>
+        <div class="todo-input-group">
+            <input type="text" id="new-todo" placeholder="Tambah tugas baru...">
+            <button class="btn-add" onclick="addTodo()">+</button>
         </div>
+        <div id="todo-list">
+            </div>
     </div>
 </div>
 
 <script>
-    // Logic for AI Suggestion (Simplified for local demo)
+    // --- AI LOGIC ---
     function getAIVibe() {
         const input = document.getElementById('mood-input').value.toLowerCase();
         const outputDiv = document.getElementById('ai-output');
         
-        if (input.trim() === "") {
-            alert("Ceritakan dulu perasaanmu!");
-            return;
-        }
+        if (!input.trim()) return;
 
         outputDiv.style.display = "block";
-        outputDiv.innerHTML = "<em>Analyzing your mood...</em>";
+        outputDiv.innerHTML = "✨ <i>MindTrack is thinking...</i>";
 
-        // Simulasi logika AI Suggestion
         setTimeout(() => {
             let suggestion = "";
-            if (input.includes("capek") || input.includes("lelah") || input.includes("pusing")) {
-                suggestion = "✨ <b>AI Suggestion:</b> Kamu terlihat butuh istirahat. Coba dengerin musik Lo-Fi selama 10 menit sebelum lanjut lagi ya.";
-            } else if (input.includes("semangat") || input.includes("senang") || input.includes("oke")) {
-                suggestion = "✨ <b>AI Suggestion:</b> Mood kamu lagi bagus! Ini waktu yang tepat untuk ngerjain tugas yang paling sulit.";
+            if (input.includes("capek") || input.includes("malas") || input.includes("stres")) {
+                suggestion = "<b>Saran AI:</b> Kamu butuh 'Micro-Break'. Stop belajar selama 5 menit, tarik napas, lalu mulai lagi dengan tugas paling ringan.";
+            } else if (input.includes("senang") || input.includes("siap") || input.includes("gas")) {
+                suggestion = "<b>Saran AI:</b> Energi kamu lagi tinggi! Sikat tugas yang paling sulit sekarang sebelum fokusmu turun.";
             } else {
-                suggestion = "✨ <b>AI Suggestion:</b> Tetap fokus! Coba teknik Pomodoro (25 menit belajar, 5 menit istirahat) supaya tetap produktif.";
+                suggestion = "<b>Saran AI:</b> Coba dengerin musik instrumen pelan sambil cicil list tugas kamu satu-satu.";
             }
             outputDiv.innerHTML = suggestion;
-        }, 800);
+        }, 600);
     }
 
-    // Logic for To-Do
-    function toggleTodo(checkbox) {
-        const label = checkbox.nextElementSibling;
+    // --- TO-DO LOGIC (CRUD) ---
+    const todoList = document.getElementById('todo-list');
+    const newTodoInput = document.getElementById('new-todo');
+
+    // Tambah Tugas
+    function addTodo() {
+        const text = newTodoInput.value.trim();
+        if (!text) return;
+
+        const todoItem = document.createElement('div');
+        todoItem.className = 'todo-item';
+        todoItem.innerHTML = `
+            <div class="todo-left">
+                <input type="checkbox" onchange="toggleComplete(this)">
+                <span class="todo-text">${text}</span>
+            </div>
+            <button class="btn-delete" onclick="deleteTodo(this)">×</button>
+        `;
+
+        todoList.appendChild(todoItem);
+        newTodoInput.value = "";
+    }
+
+    // Enter untuk tambah
+    newTodoInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addTodo();
+    });
+
+    // Hapus Tugas
+    function deleteTodo(btn) {
+        btn.parentElement.remove();
+    }
+
+    // Selesai Tugas
+    function toggleComplete(checkbox) {
+        const textSpan = checkbox.nextElementSibling;
         if (checkbox.checked) {
-            label.classList.add('completed');
+            textSpan.classList.add('completed');
         } else {
-            label.classList.remove('completed');
+            textSpan.classList.remove('completed');
         }
     }
 </script>
